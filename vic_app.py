@@ -9,6 +9,9 @@ vre_os = 2272.318
 vfs_os = 2338
 vpl_os = 1790
 
+# Parent net debt
+vic_net_debt = -96161
+
 # Ownership values
 vhm_ownership = 0.735
 vre_ownership = 0.188
@@ -79,7 +82,7 @@ def vic_valuation(vhm, vre, vfs, vpl, vinschool, vinmec):
     vinschool_value = vinschool * vinschool_ownership * fx 
     vinmec_value = vinmec * vinmec_ownership * fx 
 
-    total_value = vhm_value + vre_value + vfs_value + vpl_value + vinschool_value + vinmec_value
+    total_value = vhm_value + vre_value + vfs_value + vpl_value + vinschool_value + vinmec_value + vic_net_debt
     value_per_share = total_value / vic_os 
     return value_per_share
 
