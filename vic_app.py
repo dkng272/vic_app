@@ -1,5 +1,6 @@
 #%%
 import streamlit as st
+import yfinance as yf
 
 # Outstanding share values
 vic_os = 3823.661
@@ -31,17 +32,28 @@ with col_fx2:
     st.write("")  # spacer for alignment
     st.write("Rate used for USD to VND conversion")
 
+# VFS auto fetch
+st.title('Fetching VFS share price from Yahoo Finance')
+vfs_ticker = yf.Ticker("VFS")
+vfs_data = vfs_ticker.history(period="1d")
+if not vfs_data.empty:
+    vfs_yf = vfs_data["Close"].iloc[-1]
+    st.success(f"Pulled latest VFS price: ${vfs_yf:.2f} from Yahoo Finance")
+else:
+    vfs_yf = 3.72  # fallback in case data pull fails
+    st.error("Failed to fetch VFS price from Yahoo Finance.")
+
+# UI for multiple share prices and private valuations
 st.title('Input share prices and private valuations')
 # Input definitions: (label, default, step, ownership)
 input_fields = [
     ("VHM Share Price (VNDk)", 62.0, 0.1, vhm_ownership),
     ("VRE Share Price (VNDk)", 25.0, 0.1, vre_ownership),
-    ("VSF Share Price (USD)", 3.72, 0.01, vfs_ownership),
+    ("VSF Share Price (USD) - defaulted live price", vfs_yf, 0.01, vfs_ownership),
     ("VPL Share Price (VNDk)", 71.0, 0.1, vpl_ownership),
     ("Vinschool Valuation (USDbn)", 1.0, 0.1, vinschool_ownership),
     ("Vinmec Valuation (USDbn)", 0.8, 0.1, vinmec_ownership),
 ]
-
 # Store inputs
 inputs = []
 
