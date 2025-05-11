@@ -1,6 +1,9 @@
 #%%
 import streamlit as st
 import yfinance as yf
+from vnstock import Vnstock 
+
+
 
 # Outstanding share values
 vic_os = 3823.661
@@ -46,12 +49,28 @@ else:
     vfs_yf = 3.72  # fallback in case data pull fails
     st.error("Failed to fetch VFS price from Yahoo Finance.")
 
+# VIC/VHM/VRE auto fetch
+st.title('Fetching VIC/VHM/VRE share prices from VNSTOCK')
+# Set up pulling live data from VNSTOCK
+current_price = []
+for symbol in ['VIC', 'VHM', 'VRE']:
+    stock = Vnstock().stock(symbol=symbol, source='VCI')
+    df = stock.quote.history(start='2025-05-01', interval='1D')
+    current_price.append(df['close'].iloc[-1])
+# Assigning the current price to variables
+vic_price = current_price[0]
+vhm_price = current_price[1]
+vre_price = current_price[2]
+if vic_price and vhm_price and vre_price:
+    st.success(f"Pulled latest prices: VIC: {vic_price:.1f}, VHM: {vhm_price:.1f}, VRE: {vre_price:.1f} from VNSTOCK")
+
+
 # UI for multiple share prices and private valuations
 st.title('Input share prices and private valuations')
 # Input definitions: (label, default, step, ownership)
 input_fields = [
-    ("VHM Share Price (VNDk)", 62.0, 0.1, vhm_ownership),
-    ("VRE Share Price (VNDk)", 25.0, 0.1, vre_ownership),
+    ("VHM Share Price (VNDk)", vhm_price, 0.1, vhm_ownership),
+    ("VRE Share Price (VNDk)", vre_price, 0.1, vre_ownership),
     ("VSF Share Price (USD) - defaulted live price", vfs_yf, 0.01, vfs_ownership),
     ("VPL Share Price (VNDk)", 71.0, 0.1, vpl_ownership),
     ("Vinschool Valuation (USDbn)", 1.0, 0.1, vinschool_ownership),
