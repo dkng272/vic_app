@@ -2,7 +2,25 @@
 import streamlit as st
 import yfinance as yf
 from vnstock import Vnstock 
+import pandas as pd
 
+# Cache stock prices
+@st.cache_data(ttl=43_200)
+def get_vnstock_prices(symbols):
+    prices = []
+    for symbol in symbols:
+        try:
+            stock = Vnstock().stock(symbol=symbol, source='VCI')
+            # use start + interval to avoid the period=“1d” TypeError
+            df = stock.quote.history(
+                start=(pd.Timestamp.today() - pd.Timedelta(days=10)).strftime("%Y-%m-%d"),
+                interval="1D"
+            )
+            prices.append(df["close"].iloc[-1])
+        except Exception as e:
+            st.warning(f"Could not fetch {symbol}: {e}")
+            prices.append(0.0)
+    return prices
 
 
 # Outstanding share values
@@ -50,19 +68,10 @@ else:
     st.error("Failed to fetch VFS price from Yahoo Finance.")
 
 # VIC/VHM/VRE auto fetch
-st.title('Fetching VIC/VHM/VRE share prices from VNSTOCK')
 # Set up pulling live data from VNSTOCK
-current_price = []
-for symbol in ['VIC', 'VHM', 'VRE']:
-    stock = Vnstock().stock(symbol=symbol, source='VCI')
-    df = stock.quote.history(start='2025-05-01', interval='1D')
-    current_price.append(df['close'].iloc[-1])
-# Assigning the current price to variables
-vic_price = current_price[0]
-vhm_price = current_price[1]
-vre_price = current_price[2]
-if vic_price and vhm_price and vre_price:
-    st.success(f"Pulled latest prices: VIC: {vic_price:.1f}, VHM: {vhm_price:.1f}, VRE: {vre_price:.1f} from VNSTOCK")
+with st.spinner('Fetching VIC, VHM, VRE prices...'):
+    vic_price, vhm_price, vre_price = get_vnstock_prices(('VIC', 'VHM', 'VRE'))
+st.success(f"Pulled latest prices: VIC: {vic_price:.1f}, VHM: {vhm_price:.1f}, VRE: {vre_price:.1f} from VNSTOCK")
 
 
 # UI for multiple share prices and private valuations
