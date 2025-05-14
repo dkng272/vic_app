@@ -47,14 +47,17 @@ st.title('App for VIC Valuation')
 st.write('Put in the following variables to calculate the valuation of VIC')
 
 # Input for FX
-st.title('Input FX Rate')
-col_fx1, col_fx2 = st.columns([2, 2])
-with col_fx1:
-    fx = st.number_input('Enter FX Rate (USD/VND)', step=0.1, value=25800.0)
-with col_fx2:
-    st.write("")  # spacer for alignment
-    st.write("")  # spacer for alignment
-    st.write("Rate used for USD to VND conversion")
+# st.title('Input FX Rate')
+# col_fx1, col_fx2 = st.columns([2, 2])
+# with col_fx1:
+#     fx = st.number_input('Enter FX Rate (USD/VND)', step=0.1, value=25800.0)
+# with col_fx2:
+#     st.write("")  # spacer for alignment
+#     st.write("")  # spacer for alignment
+#     st.write("Rate used for USD to VND conversion")
+
+# FX Rate
+fx = 25800
 
 # VFS auto fetch
 st.title('Fetching VFS share price from Yahoo Finance')
@@ -69,9 +72,9 @@ else:
 
 # VIC/VHM/VRE auto fetch
 # Set up pulling live data from VNSTOCK
-with st.spinner('Fetching VIC, VHM, VRE prices...'):
-    vic_price, vhm_price, vre_price = get_vnstock_prices(('VIC', 'VHM', 'VRE'))
-st.success(f"Pulled latest prices: VIC: {vic_price:.1f}, VHM: {vhm_price:.1f}, VRE: {vre_price:.1f} from VNSTOCK")
+with st.spinner('Fetching VIC, VHM, VRE, VPL prices...'):
+    vic_price, vhm_price, vre_price, vpl_price = get_vnstock_prices(('VIC', 'VHM', 'VRE','VPL'))
+st.success(f"Pulled latest prices: VIC: {vic_price:.1f}, VHM: {vhm_price:.1f}, VRE: {vre_price:.1f}, VPL: {vpl_price:.1f}  from VNSTOCK")
 
 
 # UI for multiple share prices and private valuations
@@ -81,7 +84,7 @@ input_fields = [
     ("VHM Share Price (VNDk)", vhm_price, 0.1, vhm_ownership),
     ("VRE Share Price (VNDk)", vre_price, 0.1, vre_ownership),
     ("VSF Share Price (USD) - defaulted live price", vfs_yf, 0.01, vfs_ownership),
-    ("VPL Share Price (VNDk)", 71.0, 0.1, vpl_ownership),
+    ("VPL Share Price (VNDk)", vpl_price, 0.1, vpl_ownership),
     ("Vinschool Valuation (USDbn)", 1.0, 0.1, vinschool_ownership),
     ("Vinmec Valuation (USDbn)", 0.8, 0.1, vinmec_ownership),
 ]
